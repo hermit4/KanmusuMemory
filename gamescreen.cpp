@@ -57,6 +57,13 @@ GameScreen::Private::Private(const QImage &image, GameScreen *parent)
 
 void GameScreen::Private::detectScreenType()
 {
+    qDebug() << "check color=" << color(QRect(105, 70, 695, 20)) << "," << qRgb(0, 0, 0);
+
+    //遠征詳細画面か
+    if(fuzzyCompare(color(QRect(105, 70, 695, 20)), qRgb(0, 0, 0))) {
+        setScreenType(ExpeditionDetialScreen);
+        return;
+    }
     //カタログ画面か
     if (fuzzyCompare(color(QRect(0, 0, 5, 5)), qRgb(45, 43, 43))) {
         setScreenType(CatalogScreen);

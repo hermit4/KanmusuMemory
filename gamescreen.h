@@ -36,7 +36,8 @@ public:
         CustomizeScreen,
         SupplyScreen,
         RepairScreen,
-        FactoryScreen
+        FactoryScreen,
+        ExpeditionDetialScreen
     };
 
     enum PartType {

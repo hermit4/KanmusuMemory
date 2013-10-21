@@ -342,6 +342,13 @@ void WebView::contextMenuEvent(QContextMenuEvent *event)
     }
     QWebView::contextMenuEvent(event);
 }
+//WebViewへのクリックイベント
+void WebView::mousePressEvent(QMouseEvent *event)
+{
+    emit mousePressed(event);
+    QWebView::mousePressEvent(event);
+}
+
 //タブで開くのトリガー
 void WebView::openLinkInNewTab()
 {

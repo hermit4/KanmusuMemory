@@ -242,6 +242,21 @@ MainWindow::Private::Private(MainWindow *parent)
         m_favorite.load(ui.favorite);
     });
 
+    //WebViewをクリック
+    connect(ui.webView, &WebView::mousePressed, [this](QMouseEvent *event) {
+        qDebug() << event;
+
+        QImage img = ui.webView->capture();
+        if (img.isNull()){
+            return;
+        }
+        GameScreen gameScreen(img);
+        if(gameScreen.screenType() == GameScreen::ExpeditionDetialScreen){
+
+        }
+//105 70  695 20
+    });
+
     //通知アイコン
 #ifdef Q_OS_WIN
     trayIcon.show();
