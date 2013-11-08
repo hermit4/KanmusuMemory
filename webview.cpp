@@ -349,6 +349,31 @@ void WebView::mousePressEvent(QMouseEvent *event)
     QWebView::mousePressEvent(event);
 }
 
+
+bool WebView::event(QEvent *event)
+{
+    if(event->type() == QEvent::TouchBegin
+            ){
+        QTouchEvent *t = reinterpret_cast<QTouchEvent *>(event);
+//        qDebug() << "event:" << "," << t->touchPoints().count() << "," << t->touchPoints().at(0).pos();
+        QMouseEvent e(QEvent::MouseButtonPress, t->touchPoints().at(0).pos(), Qt::LeftButton, 0, 0);
+        mousePressEvent(&e);
+        return true;
+    }
+    if(event->type() == QEvent::TouchUpdate){
+    }
+    if(event->type() == QEvent::TouchEnd
+            || event->type() == QEvent::TouchCancel
+            ){
+        QTouchEvent *t = reinterpret_cast<QTouchEvent *>(event);
+        QMouseEvent e(QEvent::MouseButtonRelease, t->touchPoints().at(0).pos(), Qt::LeftButton, 0, 0);
+        mouseReleaseEvent(&e);
+        return true;
+    }
+    return QWebView::event(event);
+}
+
+
 //タブで開くのトリガー
 void WebView::openLinkInNewTab()
 {
