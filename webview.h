@@ -49,7 +49,6 @@ signals:
 protected:
     void contextMenuEvent(QContextMenuEvent *event);
     void mousePressEvent(QMouseEvent * event);
-    bool event(QEvent * event);
 
 private slots:
     void openLinkInNewTab();
