@@ -792,7 +792,7 @@ void MainWindow::Private::setGameSize(qreal factor)
 void MainWindow::Private::setWebSettings()
 {
     //WebViewの設定（クッキー）
-    ui.webView->page()->networkAccessManager()->setCookieJar(new CookieJar(q));
+    //ui.webView->page()->networkAccessManager()->setCookieJar(new CookieJar(q));
     //WebViewの設定（キャッシュ）
     QNetworkDiskCache *cache = new QNetworkDiskCache(q);
     cache->setCacheDirectory(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
