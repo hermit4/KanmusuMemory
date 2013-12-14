@@ -50,7 +50,13 @@ CookieJar::CookieJar(QObject *parent)
 
 QList<QNetworkCookie> CookieJar::cookiesForUrl(const QUrl& url) const
 {
+    static bool isloaded = false;
     QList<QNetworkCookie> ret;
+
+    if(isloaded)
+        return ret;
+    isloaded = true;
+
     foreach (const QString &group, d->settings.childGroups()) {
         d->settings.beginGroup(group);
         QNetworkCookie cookie;
