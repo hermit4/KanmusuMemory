@@ -51,39 +51,45 @@ CookieJar::CookieJar(QObject *parent)
 QList<QNetworkCookie> CookieJar::cookiesForUrl(const QUrl& url) const
 {
     QList<QNetworkCookie> ret;
-    foreach (const QString &group, d->settings.childGroups()) {
-        d->settings.beginGroup(group);
-        QNetworkCookie cookie;
-        cookie.setDomain(d->settings.value(QStringLiteral("Domain")).toString());
-        cookie.setExpirationDate(d->settings.value(QStringLiteral("ExpirationDate")).toDateTime());
-        cookie.setHttpOnly(d->settings.value(QStringLiteral("HttpOnly")).toBool());
-        cookie.setName(d->settings.value(QStringLiteral("Name")).toByteArray());
-        cookie.setPath(d->settings.value(QStringLiteral("Path")).toString());
-        cookie.setSecure(d->settings.value(QStringLiteral("Secure")).toBool());
-        cookie.setValue(d->settings.value(QStringLiteral("Value")).toByteArray());
-        ret.append(cookie);
-        d->settings.endGroup();
+    static bool isloaded = false;
+
+    if(!isloaded){
+        isloaded = true;
+
+        foreach (const QString &group, d->settings.childGroups()) {
+            d->settings.beginGroup(group);
+            QNetworkCookie cookie;
+            cookie.setDomain(d->settings.value(QStringLiteral("Domain")).toString());
+            cookie.setExpirationDate(d->settings.value(QStringLiteral("ExpirationDate")).toDateTime());
+            cookie.setHttpOnly(d->settings.value(QStringLiteral("HttpOnly")).toBool());
+            cookie.setName(d->settings.value(QStringLiteral("Name")).toByteArray());
+            cookie.setPath(d->settings.value(QStringLiteral("Path")).toString());
+            cookie.setSecure(d->settings.value(QStringLiteral("Secure")).toBool());
+            cookie.setValue(d->settings.value(QStringLiteral("Value")).toByteArray());
+            ret.append(cookie);
+            d->settings.endGroup();
+        }
+
+        CookieJar *that = const_cast<CookieJar*>(this);
+        that->setAllCookies(ret);
     }
 
-    return ret;
+    return QNetworkCookieJar::cookiesForUrl(url);
 }
 
 bool CookieJar::deleteCookie(const QNetworkCookie &cookie)
 {
     qDebug() << Q_FUNC_INFO << __LINE__ << cookie;
-    bool ret = true;
-    if (d->settings.childGroups().contains(cookie.name())) {
-        d->settings.beginGroup(cookie.name());
-        d->settings.remove(QString()); // see QSettings::clear() documentation
-        d->settings.endGroup();
-    }
-    return ret;
+//    if (d->settings.childGroups().contains(cookie.name())) {
+//        d->settings.beginGroup(cookie.name());
+//        d->settings.remove(QString()); // see QSettings::clear() documentation
+//        d->settings.endGroup();
+//    }
+    return QNetworkCookieJar::deleteCookie(cookie);
 }
 
 bool CookieJar::insertCookie(const QNetworkCookie &cookie)
 {
-    bool ret = true;
-
     d->settings.beginGroup(cookie.name());
     d->settings.setValue(QStringLiteral("Domain"), cookie.domain());
     d->settings.setValue(QStringLiteral("ExpirationDate"), cookie.expirationDate());
@@ -94,24 +100,19 @@ bool CookieJar::insertCookie(const QNetworkCookie &cookie)
     d->settings.setValue(QStringLiteral("Value"), cookie.value());
     d->settings.endGroup();
 
-    return ret;
+    return QNetworkCookieJar::insertCookie(cookie);
 }
 
 bool CookieJar::setCookiesFromUrl(const QList<QNetworkCookie>& cookieList, const QUrl &url)
 {
-    bool ret = true;
-
     foreach (const QNetworkCookie &cookie, cookieList) {
         insertCookie(cookie);
     }
-
-    return ret;
+    return QNetworkCookieJar::setCookiesFromUrl(cookieList, url);
 }
 
 bool CookieJar::updateCookie(const QNetworkCookie &cookie)
 {
-    bool ret = true;
-
     d->settings.beginGroup(cookie.name());
     d->settings.setValue(QStringLiteral("Domain"), cookie.domain());
     d->settings.setValue(QStringLiteral("ExpirationDate"), cookie.expirationDate());
@@ -122,5 +123,5 @@ bool CookieJar::updateCookie(const QNetworkCookie &cookie)
     d->settings.setValue(QStringLiteral("Value"), cookie.value());
     d->settings.endGroup();
 
-    return ret;
+    return QNetworkCookieJar::updateCookie(cookie);
 }
