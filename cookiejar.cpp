@@ -31,18 +31,18 @@ static const int INTERVAL = 1000 * 3;  // 3sec.
 QDataStream &operator<<(QDataStream &st, const QList<QNetworkCookie> &src)
 {
     st << COOKIEJAR_MAGIC;
-    st << quint32(src.size());
-    for (int i = 0; i < src.size(); ++i) {
-        st << src.at(i).toRawForm();
+    st << quint32(src.count());
+    foreach (const QNetworkCookie& cookie, src) {
+        st << cookie.toRawForm();
     }
     return st;
 }
 
 QDataStream &operator>>(QDataStream &st, QList<QNetworkCookie> &dest)
 {
-    QList<QNetworkCookie> tmp;
     quint32 magic;
     st >> magic;
+    Q_ASSERT(magic == COOKIEJAR_MAGIC);
     if (magic != COOKIEJAR_MAGIC) {
         return st;
     }
@@ -50,23 +50,19 @@ QDataStream &operator>>(QDataStream &st, QList<QNetworkCookie> &dest)
     quint32 count;
     st >> count;
 
-    tmp.reserve(count);
-    for (quint32 i = 0; i < count; ++i) {
+    QList<QNetworkCookie> cookies;
+    cookies.reserve(count);
+    while (!st.atEnd()) {
         QByteArray value;
         st >> value;
-
-        QList<QNetworkCookie> newCookies = QNetworkCookie::parseCookies(value);
-        for (int j = 0; j < newCookies.count(); ++j) {
-            tmp.append(newCookies.at(j));
-        }
-        if (st.atEnd()) {
-            break;
-        }
+        cookies << QNetworkCookie::parseCookies(value);
     }
-    dest.swap(tmp);
+    Q_ASSERT(count == static_cast<quint32>(cookies.count()));
+    if (count == static_cast<quint32>(cookies.count())) {
+        dest.swap(cookies);
+    }
     return st;
 }
-
 
 CookieJar::CookieJar(QObject *parent)
     : QNetworkCookieJar(parent), saveDelayTimer_(new QTimer(parent))
